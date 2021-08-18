@@ -1,14 +1,25 @@
-import React, {useState} from 'react'
+import React, {useState, useEffect} from 'react'
 import APIService from '../components/APIService';
 
 function Form(props) {
 
-    const[title, setTitle] = useState(props.article.title)
-    const[body, setBody] = useState(props.article.body)
+    const [title, setTitle] = useState('')
+    const [body, setBody] = useState('')
+
+    useEffect(() => {
+        setTitle(props.article.title)
+        setBody(props.article.body)
+    },[props.article])
 
     const updateArticle = () => {
         APIService.UpdateArticle(props.article.id, {title, body})
-        .then(resp => console.log(resp))
+        .then(resp => props.updatedData(resp))
+        .catch(error => console.log(error))
+    }
+
+    const insertArticle = () => {
+        APIService.InsertArticle({title,body})
+        .then(resp=> props.insertedArticle(resp))
         .catch(error => console.log(error))
     }
 
@@ -27,8 +38,15 @@ function Form(props) {
                 placeholder="please enter Description" value={body}
                 onChange= {(e) => setBody(e.target.value)} />
 
-                <button className = "btn btn-success mt-3"
-                onClick= {updateArticle}>Update</button>
+
+                {
+                    props.article.id ? <button className = "btn btn-success mt-3"
+                    onClick = {updateArticle}>Update</button>
+                    :
+
+                    <button className = "btn btn-success mt-3"
+                    onClick = {insertArticle}>Insert</button>
+                }
                 </div>
             ):null }
         </div>
